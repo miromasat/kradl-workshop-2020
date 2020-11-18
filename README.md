@@ -7,10 +7,10 @@
 * 1D: Create an IAM user with no policies attached called `nyc-taxi-user-<XX>`
 * 1E: Create an IAM role with S3 full access + Glue full access policies attached, called `nyc-taxi-role-<XX>`
 * 1F: Create four S3 buckets, you will use in later stages, replace `<XX>` with your initials
-  * 1FA: `nyc-taxi-store-7a-<XX>`
-  * 1FB: `nyc-taxi-store-7b-<XX>`
-  * 1FC: `nyc-taxi-store-7c-<XX>`
-  * 1FD: `nyc-taxi-store-7d-<XX>`
+  * 1FA: `nyc-taxi-store-5a-<XX>`
+  * 1FB: `nyc-taxi-store-5b-<XX>`
+  * 1FC: `nyc-taxi-store-5c-<XX>`
+  * 1FD: `nyc-taxi-store-5d-<XX>`
   * 1FF: `nyc-taxi-store-<XX>`
   * 1FG: `nyc-taxi-analyze-<XX>`
 ### Create a kinesis-stream with 10 shards by default, replace <XX> with your initials
@@ -20,42 +20,42 @@
 * 3B: source: `nyc-taxi-ingest-<XX>`
 * 3C: destination: `nyc-taxi-store-<XX>`
 * 3D: Test the delivery with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
-### Crawl nyc-taxi-store-<XX> S3 bucket using (replace `<XX>` with your initials)
-* 5A: a crawler to discover the schema: `nyc-taxi-crawl-<XX>`
-* 5B: a glue role: `nyc-taxi-crawl-role-<XX>`
-* 5C: a database name: `nyc-taxi-database-<XX>`
-* 5D: run the crawler and obtain a table within this database, call it: `nyc-taxi-table-<XX>`
+### Crawl `nyc-taxi-store-<XX>` S3 bucket using (replace `<XX>` with your initials)
+* 4A: a crawler to discover the schema: `nyc-taxi-crawl-<XX>`
+* 4B: a glue role: `nyc-taxi-crawl-role-<XX>`
+* 4C: a database name: `nyc-taxi-database-<XX>`
+* 4D: run the crawler and obtain a table within this database, call it: `nyc-taxi-table-<XX>`
 ### Same query (total_amount of a trip under 5 USD) in 4 different ways:
-* 7A: temporary on the ingest using Kinesis Analytics Application: -> S3 bucket for the destination -> create kinesis firehose for delivery into S3, point kinesis analytics into the firehose
-  * 7AA: create a kinesis-analytics application: `nyc-taxi-analyze-7a-<XX>`
-  * 7AB: connect kinesis-analytics application to kinesis-stream: `nyc-taxi-ingest-<XX>`
-  * 7AC: discover the schema with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
-  * 7AD: replace kinesis-analytics code with code provided in `7a.sql`
-  * 7AE: create a kinesis-firehose: `nyc-taxi-deliver-7a-<XX>`
-  * 7AF: deliver kinesis-firehose results into: `nyc-taxi-store-7a-<XX>`
-  * 7AG: attach kinesis-analytics application to kinesis-firehose
-* 7B: permanently on the ingest using Lambda Function 
-  * 7BA: create a lambda function through Cloud9 from a blueprint kinesis-firehose-process-record (python2.7): `nycTaxiProcess<XX>`
-  * 7BB: replace the lambda code with code provided in `7b.py` file
-  * 7BC: create a kinesis-firehose: `nyc-taxi-deliver-7b-<XX>`
-  * 7BD: deliver kinesis-firehose results into: `nyc-taxi-store-7b-<XX>`
-  * 7BE: attach the function to this new kinesis-firehose and test the delivery using the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
-* 7C: temporarily on the store using Athena View
-  * 7CA: set Athena result destination to: `nyc-taxi-store-7c-<XX>`
-  * 7CB: run a simple query to validate records are being properly read: `SELECT * FROM nyc-taxi-table-<XX> WHERE amount < 5`
-  * 7CC: store this query as a View for reuse later on and run it
-* 7D: permanently on the store using Glue Studio
-  * 7DA: navigate to Glue Studio and create a new visual job called `nyc-taxi-transform-7d-<XX>`
-  * 7DB: select a S3 to S3 transform and use input bucket: `nyc-taxi-store-<XX>` and output `nyc-taxi-store-7d-<XX>`
-  * 7DC: change Apply Mapping type to Transform - Filter
-  * 7DD: set Job Details section with the role `nyc-taxi-role-<XX>` and a number of retries to the value of 1
-  * 7DE: run the glue job
+* 5A: temporary on the ingest using Kinesis Analytics Application: -> S3 bucket for the destination -> create kinesis firehose for delivery into S3, point kinesis analytics into the firehose
+  * 5AA: create a kinesis-analytics application: `nyc-taxi-analyze-5a-<XX>`
+  * 5AB: connect kinesis-analytics application to kinesis-stream: `nyc-taxi-ingest-<XX>`
+  * 5AC: discover the schema with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+  * 5AD: replace kinesis-analytics code with code provided in `5a.sql`
+  * 5AE: create a kinesis-firehose: `nyc-taxi-deliver-5a-<XX>`
+  * 5AF: deliver kinesis-firehose results into: `nyc-taxi-store-5a-<XX>`
+  * 5AG: attach kinesis-analytics application to kinesis-firehose
+* 5B: permanently on the ingest using Lambda Function 
+  * 5BA: create a lambda function through Cloud9 from a blueprint kinesis-firehose-process-record (python2.7): `nycTaxiProcess<XX>`
+  * 5BB: replace the lambda code with code provided in `5b.py` file
+  * 5BC: create a kinesis-firehose: `nyc-taxi-deliver-5b-<XX>`
+  * 5BD: deliver kinesis-firehose results into: `nyc-taxi-store-5b-<XX>`
+  * 5BE: attach the function to this new kinesis-firehose and test the delivery using the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+* 5C: temporarily on the store using Athena View
+  * 5CA: set Athena result destination to: `nyc-taxi-store-5c-<XX>`
+  * 5CB: run a simple query to validate records are being properly read: `SELECT * FROM nyc-taxi-table-<XX> WHERE amount < 5`
+  * 5CC: store this query as a View for reuse later on and run it
+* 5D: permanently on the store using Glue Studio
+  * 5DA: navigate to Glue Studio and create a new visual job called `nyc-taxi-transform-5d-<XX>`
+  * 5DB: select a S3 to S3 transform and use input bucket: `nyc-taxi-store-<XX>` and output `nyc-taxi-store-5d-<XX>`
+  * 5DC: change Apply Mapping type to Transform - Filter
+  * 5DD: set Job Details section with the role `nyc-taxi-role-<XX>` and a number of retries to the value of 1
+  * 5DE: run the glue job
 ### Visualize the data through QuickSight
-* 8A: navigate to the quicksight console and register standard edition of quicksight
-* 8B: allow quicksight access into S3
-* 8C: model a dashboard showing all trip destinations coloured by a number of passengers
+* 6A: navigate to the quicksight console and register standard edition of quicksight
+* 6B: allow quicksight access into S3
+* 6C: model a dashboard showing all trip destinations coloured by a number of passengers
 ### Control access through LakeFormation: we will skip this module, requires a follow-up with a specialist
-### Convert pipeline 7B into CDK/CF Code:
-* 10A: explore the CDK code provided and amend if needed
-* 10B: run `cdk synth` to see CF Template generated from the code
-* 10C: run `cdk deploy` to deploy infrastructure for 7B
+### Convert pipeline 5B into CDK/CF Code:
+* 8A: explore the CDK code provided and amend if needed
+* 8B: run `cdk synth` to see CF Template generated from the code
+* 8C: run `cdk deploy` to deploy infrastructure for 5B
