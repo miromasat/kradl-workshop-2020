@@ -50,95 +50,9 @@ class DemoPythonSampleStack(core.Stack):
 
             self, "ExistingStream", 
 
-            #stream_arn = "arn:aws:kinesis:::stream/nyc-taxi-replay-miro"
-
-            stream_arn = "arn:aws:kinesis:us-west-2:711127748486:stream/nyc-taxi-replay-miro"
+            stream_arn = "arn:aws:kinesis:us-east-1:395990686437:stream/nyc-taxi-replay-miro"
 
         )
-
-
-
-        deliverystreamrole = iam.Role(
-
-            self, "DeliveryStreamRole",
-
-            assumed_by = iam.ServicePrincipal("firehose.amazonaws.com")
-
-        )
-
-
-
-        deliverystreamrole.add_to_policy(iam.PolicyStatement(
-
-            effect=iam.Effect.ALLOW,
-
-            resources=[bucket.bucket_arn, bucket.arn_for_objects("*")],
-
-            actions=[
-
-                "s3:AbortMultipartUpload",
-
-                "s3:GetBucketLocation",
-
-                "s3:GetObject",
-
-                "s3:ListBucket",
-
-                "s3:ListBucketMultipartUploads",
-
-                "s3:PutObject"
-
-            ]
-
-        ))
-
-
-
-        deliverystreamrole.add_to_policy(iam.PolicyStatement(
-
-            effect=iam.Effect.ALLOW,
-
-            resources=[
-
-                #stream.stream_arn
-
-                "arn:aws:kinesis:*:*:stream/nyc-taxi-replay-miro"
-
-            ],
-
-            actions=[
-
-                "kinesis:DescribeStream",
-
-                "kinesis:GetShardIterator",
-
-                "kinesis:GetRecords",
-
-                "kinesis:ListShards"
-
-            ]
-
-        ))
-
-
-
-        deliverystreamrole.add_to_policy(iam.PolicyStatement(
-
-            effect=iam.Effect.ALLOW,
-
-            resources=[
-
-                "arn:aws:logs:*:*:*"
-
-            ],
-
-            actions=[
-
-                "logs:*"
-
-            ]
-
-        ))
 
 
 
@@ -228,67 +142,159 @@ class DemoPythonSampleStack(core.Stack):
 
 
 
-        deliverystreamrole.add_to_policy(iam.PolicyStatement(
+        deliverystreamrole = iam.Role(
 
-            effect=iam.Effect.ALLOW,
+            self, "DeliveryStreamRole",
 
-            resources=[function.function_arn],
+            assumed_by = iam.ServicePrincipal("firehose.amazonaws.com")
 
-            actions=[
+        )
 
-                "lambda:InvokeFunction",
 
-                "lambda:GetFunctionConfiguration"
+
+        deliverystreampolicy = iam.Policy(
+
+            self, "DeliveryStreamPolicy",
+
+            roles = [deliverystreamrole],
+
+            statements = [
+
+                iam.PolicyStatement(
+
+                    effect=iam.Effect.ALLOW,
+
+                    resources=[bucket.bucket_arn, bucket.arn_for_objects("*")],
+
+                    actions=[
+
+                        "s3:AbortMultipartUpload",
+
+                        "s3:GetBucketLocation",
+
+                        "s3:GetObject",
+
+                        "s3:ListBucket",
+
+                        "s3:ListBucketMultipartUploads",
+
+                        "s3:PutObject"
+
+                    ]
+
+                ),
+
+                iam.PolicyStatement(
+
+                    effect=iam.Effect.ALLOW,
+
+                    resources=[
+
+                        stream.stream_arn
+
+                    ],
+
+                    actions=[
+
+                        "kinesis:DescribeStream",
+
+                        "kinesis:GetShardIterator",
+
+                        "kinesis:GetRecords",
+
+                        "kinesis:ListShards"
+
+                    ]
+
+                ),
+
+                iam.PolicyStatement(
+
+                    effect=iam.Effect.ALLOW,
+
+                    resources=[
+
+                        "arn:aws:logs:*:*:*"
+
+                    ],
+
+                    actions=[
+
+                        "logs:*"
+
+                    ]
+
+                ),
+
+                iam.PolicyStatement(
+
+                    effect=iam.Effect.ALLOW,
+
+                    resources=[function.function_arn],
+
+                    actions=[
+
+                        "lambda:InvokeFunction",
+
+                        "lambda:GetFunctionConfiguration"
+
+                    ]
+
+                )
 
             ]
 
-        ))
+        )
 
 
 
-        #deliverystream = kinesisfirehose.CfnDeliveryStream(
+        deliverystream = kinesisfirehose.CfnDeliveryStream(
 
-        #    self, "DeliveryStream",
+            self, "DeliveryStream",
 
-        #    delivery_stream_name = "nyc-taxi-delivery-under5-miro",
+            delivery_stream_name = "nyc-taxi-delivery-under5-miro",
 
-        #    delivery_stream_type = "KinesisStreamAsSource",
+            delivery_stream_type = "KinesisStreamAsSource",
 
-        #    extended_s3_destination_configuration = kinesisfirehose.CfnDeliveryStream.ExtendedS3DestinationConfigurationProperty(
+            extended_s3_destination_configuration = kinesisfirehose.CfnDeliveryStream.ExtendedS3DestinationConfigurationProperty(
 
-        #        bucket_arn = bucket.bucket_arn, 
+                bucket_arn = bucket.bucket_arn, 
 
-        #        role_arn = deliverystreamrole.role_arn, 
+                role_arn = deliverystreamrole.role_arn, 
 
-        #        processing_configuration = kinesisfirehose.CfnDeliveryStream.ProcessingConfigurationProperty(
+                processing_configuration = kinesisfirehose.CfnDeliveryStream.ProcessingConfigurationProperty(
 
-        #            enabled = True,
+                    enabled = True,
 
-        #            processors = [kinesisfirehose.CfnDeliveryStream.ProcessorProperty(
+                    processors = [kinesisfirehose.CfnDeliveryStream.ProcessorProperty(
 
-        #                type = "Lambda",
+                        type = "Lambda",
 
-        #                parameters = [kinesisfirehose.CfnDeliveryStream.ProcessorParameterProperty(
+                        parameters = [kinesisfirehose.CfnDeliveryStream.ProcessorParameterProperty(
 
-        #                    parameter_name = "LambdaArn",
+                            parameter_name = "LambdaArn",
 
-        #                    parameter_value = function.function_arn
+                            parameter_value = function.function_arn
 
-        #                )]
+                        )]
 
-        #            )]
+                    )]
 
-        #        )
+                )
 
-        #    ),
+            ),
 
-        #    kinesis_stream_source_configuration = kinesisfirehose.CfnDeliveryStream.KinesisStreamSourceConfigurationProperty(
+            kinesis_stream_source_configuration = kinesisfirehose.CfnDeliveryStream.KinesisStreamSourceConfigurationProperty(
 
-        #        kinesis_stream_arn = stream.stream_arn, 
+                kinesis_stream_arn = stream.stream_arn, 
 
-        #        role_arn = deliverystreamrole.role_arn
+                role_arn = deliverystreamrole.role_arn
 
-        #    )
+            )
 
-        #)
+        )
+
+        deliverystream.add_depends_on(deliverystreampolicy.node.default_child)
+
+        #deliverystream.add_depends_on(stream.node.default_child)
 
