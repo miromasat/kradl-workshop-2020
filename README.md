@@ -27,27 +27,28 @@
 * 5D: run the crawler and obtain a table within this database, call it: `nyc-taxi-table-<XX>`
 ### Same query (total_amount of a trip under 5 USD) in 4 different ways:
 * 7A: temporary on the ingest using Kinesis Analytics Application: -> S3 bucket for the destination -> create kinesis firehose for delivery into S3, point kinesis analytics into the firehose
-  * 7AA: create a kinesis-analytics application: nyc-taxi-analyze-7a-<XX>
-  * 7AB: connect kinesis-analytics application to kinesis-stream: nyc-taxi-ingest-<XX>
-  * 7AC: discover the schema with the agent: java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1
-  * 7AD: create a kinesis-firehose: nyc-taxi-deliver-7a-<XX> 
-  * 7AE: deliver kinesis-firehose results into: nyc-taxi-store-7a-<XX>
-  * 7AF: attach kinesis-analytics application to kinesis-firehose
+  * 7AA: create a kinesis-analytics application: `nyc-taxi-analyze-7a-<XX>`
+  * 7AB: connect kinesis-analytics application to kinesis-stream: `nyc-taxi-ingest-<XX>`
+  * 7AC: discover the schema with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+  * 7AD: replace kinesis-analytics code with code provided in `7a.sql`
+  * 7AE: create a kinesis-firehose: `nyc-taxi-deliver-7a-<XX>`
+  * 7AF: deliver kinesis-firehose results into: `nyc-taxi-store-7a-<XX>`
+  * 7AG: attach kinesis-analytics application to kinesis-firehose
 * 7B: permanently on the ingest using Lambda Function 
-  * 7BA: create a lambda function through Cloud9 from a blueprint kinesis-firehose-process-record (python2.7): nycTaxiProcess<XX>
-  * 7BB: replace the lambda code with code provided
-  * 7BC: create a kinesis-firehose: nyc-taxi-deliver-7b-<XX>
-  * 7BD: deliver kinesis-firehose results into: nyc-taxi-store-7b-<XX>
-  * 7BE: attach the function to this new kinesis-firehose and test the delivery using the agent: java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1
+  * 7BA: create a lambda function through Cloud9 from a blueprint kinesis-firehose-process-record (python2.7): `nycTaxiProcess<XX>`
+  * 7BB: replace the lambda code with code provided in `7b.py` file
+  * 7BC: create a kinesis-firehose: `nyc-taxi-deliver-7b-<XX>`
+  * 7BD: deliver kinesis-firehose results into: `nyc-taxi-store-7b-<XX>`
+  * 7BE: attach the function to this new kinesis-firehose and test the delivery using the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
 * 7C: temporarily on the store using Athena View
-  * 7CA: set Athena result destination to: nyc-taxi-store-7c-<XX>
-  * 7CB: run a simple query to validate records are being properly read: SELECT * FROM nyc-taxi-table-<XX> WHERE amount < 5 
+  * 7CA: set Athena result destination to: `nyc-taxi-store-7c-<XX>`
+  * 7CB: run a simple query to validate records are being properly read: `SELECT * FROM nyc-taxi-table-<XX> WHERE amount < 5`
   * 7CC: store this query as a View for reuse later on and run it
-* 7D: permanently on the store using Glue Studio -> S3 to S3 -> Transform component -> Filter -> < 5USD -> keep partitioning
-  * 7DA: navigate to Glue Studio and create a new visual job called nyc-taxi-transform-7d-<XX>
-  * 7DB: select a S3 to S3 transform and use input bucket: nyc-taxi-store-<XX> and output nyc-taxi-store-7d-<XX>
+* 7D: permanently on the store using Glue Studio
+  * 7DA: navigate to Glue Studio and create a new visual job called `nyc-taxi-transform-7d-<XX>`
+  * 7DB: select a S3 to S3 transform and use input bucket: `nyc-taxi-store-<XX>` and output `nyc-taxi-store-7d-<XX>`
   * 7DC: change Apply Mapping type to Transform - Filter
-  * 7DD: set Job Details section with the role nyc-taxi-role-<XX> and a number of retries to the value of 1
+  * 7DD: set Job Details section with the role `nyc-taxi-role-<XX>` and a number of retries to the value of 1
   * 7DE: run the glue job
 ### Visualize the data through QuickSight
 * 8A: navigate to the quicksight console and register standard edition of quicksight
@@ -56,5 +57,5 @@
 ### Control access through LakeFormation: we will skip this module, requires a follow-up with a specialist
 ### Convert pipeline 7B into CDK/CF Code:
 * 10A: explore the CDK code provided and amend if needed
-* 10B: run cdk synth to see CF Template generated from the code
-* 10C: run cdk deploy to deploy infrastructure for 7B
+* 10B: run `cdk synth` to see CF Template generated from the code
+* 10C: run `cdk deploy` to deploy infrastructure for 7B
