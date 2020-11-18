@@ -30,9 +30,9 @@ class DemoPythonSampleStack(core.Stack):
 
         bucket = s3.Bucket(
 
-            self, "Bucket"
+            self, "Bucket",
 
-            #bucket_name = "nyc-taxi-under5-miro-src"
+            bucket_name = "nyc-taxi-under5-miro-src-20201118"
 
         )
 
@@ -72,7 +72,7 @@ class DemoPythonSampleStack(core.Stack):
 
             effect=iam.Effect.ALLOW,
 
-            resources=[bucket.arn_for_objects("*")],
+            resources=[bucket.bucket_arn, bucket.arn_for_objects("*")],
 
             actions=[
 
@@ -112,7 +112,29 @@ class DemoPythonSampleStack(core.Stack):
 
                 "kinesis:GetShardIterator",
 
-                "kinesis:GetRecords"
+                "kinesis:GetRecords",
+
+                "kinesis:ListShards"
+
+            ]
+
+        ))
+
+
+
+        deliverystreamrole.add_to_policy(iam.PolicyStatement(
+
+            effect=iam.Effect.ALLOW,
+
+            resources=[
+
+                "arn:aws:logs:*:*:*"
+
+            ],
+
+            actions=[
+
+                "logs:*"
 
             ]
 
@@ -206,49 +228,67 @@ class DemoPythonSampleStack(core.Stack):
 
 
 
-        deliverystream = kinesisfirehose.CfnDeliveryStream(
+        deliverystreamrole.add_to_policy(iam.PolicyStatement(
 
-            self, "DeliveryStream",
+            effect=iam.Effect.ALLOW,
 
-            delivery_stream_name = "nyc-taxi-delivery-under5-miro",
+            resources=[function.function_arn],
 
-            delivery_stream_type = "KinesisStreamAsSource",
+            actions=[
 
-            extended_s3_destination_configuration = kinesisfirehose.CfnDeliveryStream.ExtendedS3DestinationConfigurationProperty(
+                "lambda:InvokeFunction",
 
-                bucket_arn = bucket.bucket_arn, 
+                "lambda:GetFunctionConfiguration"
 
-                role_arn = deliverystreamrole.role_arn, 
+            ]
 
-                processing_configuration = kinesisfirehose.CfnDeliveryStream.ProcessingConfigurationProperty(
+        ))
 
-                    enabled = True,
 
-                    processors = [kinesisfirehose.CfnDeliveryStream.ProcessorProperty(
 
-                        type = "Lambda",
+        #deliverystream = kinesisfirehose.CfnDeliveryStream(
 
-                        parameters = [kinesisfirehose.CfnDeliveryStream.ProcessorParameterProperty(
+        #    self, "DeliveryStream",
 
-                            parameter_name = "LambdaArn",
+        #    delivery_stream_name = "nyc-taxi-delivery-under5-miro",
 
-                            parameter_value = function.function_arn
+        #    delivery_stream_type = "KinesisStreamAsSource",
 
-                        )]
+        #    extended_s3_destination_configuration = kinesisfirehose.CfnDeliveryStream.ExtendedS3DestinationConfigurationProperty(
 
-                    )]
+        #        bucket_arn = bucket.bucket_arn, 
 
-                )
+        #        role_arn = deliverystreamrole.role_arn, 
 
-            ),
+        #        processing_configuration = kinesisfirehose.CfnDeliveryStream.ProcessingConfigurationProperty(
 
-            kinesis_stream_source_configuration = kinesisfirehose.CfnDeliveryStream.KinesisStreamSourceConfigurationProperty(
+        #            enabled = True,
 
-                kinesis_stream_arn = stream.stream_arn, 
+        #            processors = [kinesisfirehose.CfnDeliveryStream.ProcessorProperty(
 
-                role_arn = deliverystreamrole.role_arn
+        #                type = "Lambda",
 
-            )
+        #                parameters = [kinesisfirehose.CfnDeliveryStream.ProcessorParameterProperty(
 
-        )
+        #                    parameter_name = "LambdaArn",
+
+        #                    parameter_value = function.function_arn
+
+        #                )]
+
+        #            )]
+
+        #        )
+
+        #    ),
+
+        #    kinesis_stream_source_configuration = kinesisfirehose.CfnDeliveryStream.KinesisStreamSourceConfigurationProperty(
+
+        #        kinesis_stream_arn = stream.stream_arn, 
+
+        #        role_arn = deliverystreamrole.role_arn
+
+        #    )
+
+        #)
 
