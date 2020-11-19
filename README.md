@@ -19,7 +19,7 @@
 * 3A: name of the kinesis-firehose: `nyc-taxi-deliver-<XX>`
 * 3B: source: `nyc-taxi-ingest-<XX>`
 * 3C: destination: `nyc-taxi-store-<XX>`
-* 3D: Test the delivery with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+* 3D: Test the delivery with the agent: `java -jar amazon-kinesis-replay-1.0-SNAPSHOT.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
 ### Crawl `nyc-taxi-store-<XX>` S3 bucket using (replace `<XX>` with your initials)
 * 4A: a crawler to discover the schema: `nyc-taxi-crawl-<XX>`
 * 4B: a glue role: `nyc-taxi-crawl-role-<XX>`
@@ -29,7 +29,7 @@
 * 5A: temporary on the ingest using Kinesis Analytics Application: -> S3 bucket for the destination -> create kinesis firehose for delivery into S3, point kinesis analytics into the firehose
   * 5AA: create a kinesis-analytics application: `nyc-taxi-analyze-5a-<XX>`
   * 5AB: connect kinesis-analytics application to kinesis-stream: `nyc-taxi-ingest-<XX>`
-  * 5AC: discover the schema with the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+  * 5AC: discover the schema with the agent: `java -jar amazon-kinesis-replay-1.0-SNAPSHOT.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
   * 5AD: replace kinesis-analytics code with code provided in `5a.sql`
   * 5AE: create a kinesis-firehose: `nyc-taxi-deliver-5a-<XX>`
   * 5AF: deliver kinesis-firehose results into: `nyc-taxi-store-5a-<XX>`
@@ -39,7 +39,7 @@
   * 5BB: replace the lambda code with code provided in `5b.py` file
   * 5BC: create a kinesis-firehose: `nyc-taxi-deliver-5b-<XX>`
   * 5BD: deliver kinesis-firehose results into: `nyc-taxi-store-5b-<XX>`
-  * 5BE: attach the function to this new kinesis-firehose and test the delivery using the agent: `java -jar amazon-kinesis-replay-1.0.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
+  * 5BE: attach the function to this new kinesis-firehose and test the delivery using the agent: `java -jar amazon-kinesis-replay-1.0-SNAPSHOT.jar -streamName nyc-taxi-ingest-<XX> -streamRegion us-east-1`
 * 5C: temporarily on the store using Athena View
   * 5CA: set Athena result destination to: `nyc-taxi-store-5c-<XX>`
   * 5CB: run a simple query to validate records are being properly read: `SELECT * FROM nyc-taxi-table-<XX> WHERE amount < 5`
